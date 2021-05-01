@@ -1,0 +1,42 @@
+.size {
+    width: 20px;
+    height: 20px;
+}
+
+.tile {
+    border-top: 1px solid white;
+    border-left: 1px solid white;
+    font-size: 10px;
+}
+
+.tile:hover {
+    background-color: rgba(255, 99, 71, .5);
+}
+
+.block_tile {
+    border-top: 1px solid white;
+    border-left: 1px solid white;
+    font-size: 10px;
+    background-color: white !important;
+}
+
+
+.road {
+    background: blue !important;
+}
+
+.is_open {
+    background: green;
+}
+
+.is_road {
+    background: #61dafb;
+}
+
+.is_goal {
+    background: plum;
+}
+
+.is_user {
+    background: blueviolet ;
+}
