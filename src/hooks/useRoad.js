@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { doCalculations } from '../utils/doMoveCalculations';
 import { removeUndefined } from '../utils/getUniques';
 import { evaluateTilesFromOpen, removeCurrentPositionFromOpen, removeBlockerTilesFromOpen, evaluateRestTiles } from "../utils/doMoveCalculations";
+import {findLowestCostTile} from "../utils/calculateDistance";
 
-export const useRoad = (currentPlace, blockers) => {
+export const useRoad = (currentPlace, blockers, count, move) => {
     const {
         leftTile,
         rightTile,
@@ -56,6 +57,28 @@ export const useRoad = (currentPlace, blockers) => {
             return removeCurrentPositionFromOpen(prevState.concat(withoutBlocker), currentPlace);
         })
     }, [currentPlace.x, currentPlace.y])
+
+
+    const findLowestCostTile = () => {
+        const openWithoutEvaluation = open.filter((item) => item.STATUS !== 'road');
+        const openAllCosts = openWithoutEvaluation.map((item) => item.cost);
+
+        const min = Math.min(...openAllCosts);
+        const arrayOfMins = openWithoutEvaluation.filter((item) => item.cost === min);
+
+        if(arrayOfMins.length > 1) {
+            const openHMinCosts = arrayOfMins.map((item) => item.hCost);
+            const hMin = Math.min(...openHMinCosts);
+            const tileToMove = openWithoutEvaluation.find((item) => item.hCost === hMin);
+            return tileToMove;
+        }
+        const tileToMove = openWithoutEvaluation.find((item) => item.cost === min);
+        return tileToMove;
+    }
+
+    useEffect(() => {
+        move(findLowestCostTile())
+    }, [count])
 
 
 

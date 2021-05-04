@@ -32,10 +32,20 @@ export const addCosts = (item) => {
 
 
 export const addTentativeCosts = (source, item) => {
+    const tentativeCost = tCost(source, item);
+    if(tentativeCost < item.gCost) {
+        return {
+            ...item,
+            gCost: tentativeCost,
+            cost: item.hCost + tentativeCost,
+            source: { x: source.x, y: source.y },
+            tCost: tentativeCost,
+        }
+    }
     return {
         ...item,
         source: { x: source.x, y: source.y },
-        tCost: tCost(source, item),
+        tCost: tentativeCost,
     }
 }
 
@@ -57,19 +67,4 @@ const tileToMove = openWithoutEvaluation.find((item) => item.gCost === minG);
 return tileToMove
 
  */
-export const findLowestCostTile = (open, setOpen) => {
-    const openWithoutEvaluation = open.filter((item) => item.STATUS !== 'road');
-    const openAllCosts = openWithoutEvaluation.map((item) => item.cost);
 
-    const min = Math.min(...openAllCosts);
-    const arrayOfMins = openWithoutEvaluation.filter((item) => item.cost === min);
-
-    if(arrayOfMins.length > 1) {
-        const openHMinCosts = arrayOfMins.map((item) => item.hCost);
-        const hMin = Math.min(...openHMinCosts);
-        const tileToMove = openWithoutEvaluation.find((item) => item.hCost === hMin);
-        return tileToMove;
-    }
-    const tileToMove = openWithoutEvaluation.find((item) => item.cost === min);
-    return tileToMove;
-}
