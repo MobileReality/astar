@@ -10,7 +10,7 @@ function App() {
     const [count, setCount] = useState(0);
     const { position, move } = usePlayer(START);
     const { blockers, setBlockersOnMap, setTileAsBlocker } = useBlockers({ dimension: DIMENSION });
-    const { open, road } = useRoad(position, blockers, count, move);
+    const { open, road, path, setFinalPath } = useRoad(position, blockers, count, move);
     const [isSetting, setIsSetting] = useState(false);
     const positionRef = useRef(position)
 
@@ -32,18 +32,23 @@ function App() {
     }
 
 
+
     return (
-    <div className="App" onMouseDown={() => setIsSetting(true)} onMouseUp={() => setIsSetting(false)}>
+    <div className="App"
+         onMouseDown={() => setIsSetting(true)} onMouseUp={() => setIsSetting(false)}
+    >
       <header className="App-header">
           <button onClick={moveToLowestCost}>move</button>
           <button onClick={moveByOneTile}>move by one tile</button>
-          <button onClick={() => setBlockersOnMap()}>set blockers</button>
+          <button onClick={setBlockersOnMap}>set blockers</button>
+          <button onClick={setFinalPath}>set path</button>
           <Map
               columns={DIMENSION}
               rows={DIMENSION}
               blockers={blockers}
               open={open}
               road={road}
+              path={path}
               goal={GOAL}
               userPosition={position}
               setTileAsBlocker={setTileAsBlocker}

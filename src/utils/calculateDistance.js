@@ -3,34 +3,41 @@ import { START, GOAL } from '../constants';
 const gCost = (currentPosition) => { // gCost from start
     const width = currentPosition.x - START.x;
     const height = currentPosition.y - START.y;
-    return Math.sqrt(width*width + height*height);
+    return Number(Math.sqrt(width*width + height*height).toFixed(1))
 }
 
 const hCost = (currentPosition) => { // hCost from end
     const width = GOAL.x - currentPosition.x;
     const height = GOAL.y - currentPosition.y;
-    return Math.sqrt(width*width + height*height);
+    return Number(Math.sqrt(width*width + height*height).toFixed(1))
 }
 
 const tCost = (source, currentPosition) => {
     const neighbourWidth = currentPosition.x - source.x;
     const neighbourHeight = currentPosition.y - source.y;
-    const t_cost = Math.sqrt(neighbourWidth*neighbourWidth + neighbourHeight*neighbourHeight);
-    return t_cost + gCost(source);
+    const t_cost = Number(Math.sqrt(neighbourWidth*neighbourWidth + neighbourHeight*neighbourHeight).toFixed(1));
+    const cost = t_cost + gCost(source);
+    return Number(cost.toFixed(1));
 }
 
-export const addCosts = (item) => {
+export const addCosts = (item, position = undefined) => {
     if(!item) return undefined;
+    const g_cost = gCost(item);
+    const h_cost = hCost(item);
+    const tentativeCost = position && tCost(position, item);
+    const cost = g_cost + h_cost
     return {
         x: item.x,
         y: item.y,
-        gCost: gCost(item),
-        hCost: hCost(item),
-        cost: gCost(item) + hCost(item),
+        gCost: g_cost,
+        hCost: h_cost,
+        tCost: tentativeCost,
+        cost: Number(cost.toFixed(1)),
+        parents: [addCosts(position)],
     }
 }
 
-
+//   parentKey: JSON.stringify({ x: source.x, y: source.y }),
 export const addTentativeCosts = (source, item) => {
     const tentativeCost = tCost(source, item);
     if(tentativeCost < item.gCost) {
@@ -40,6 +47,7 @@ export const addTentativeCosts = (source, item) => {
             cost: item.hCost + tentativeCost,
             source: { x: source.x, y: source.y },
             tCost: tentativeCost,
+            IS_TENTATIVE_BETTER: true,
         }
     }
     return {
@@ -47,6 +55,10 @@ export const addTentativeCosts = (source, item) => {
         source: { x: source.x, y: source.y },
         tCost: tentativeCost,
     }
+}
+
+export const getPath = (open) => {
+    return open.filter((item) => !!item.source).map((item) => item.source)
 }
 
 /*

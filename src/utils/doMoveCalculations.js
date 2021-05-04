@@ -1,4 +1,4 @@
-import { addCosts, addTentativeCosts } from './calculateDistance';
+import { addCosts } from './calculateDistance';
 import {DIMENSION} from "../constants";
 
 export const letCalculateLowerPosition = (coordinate) => {
@@ -22,20 +22,11 @@ export const removeNegativeValues = (array) => {
 export const evaluateTilesFromOpen = (open, road) => {
     let array = open;
     road.forEach((roadTile) => {
-        array = array.map((openTile) => {
-            if(openTile.x === roadTile.x && openTile.y === roadTile.y) {
-                return {
-                    ...openTile,
-                    STATUS: 'road',
-                }
-            }
-            return {
-                ...openTile,
-                STATUS: 'waiting',
-            };
+        array = array.filter((openTile) => {
+            return openTile.x !== roadTile.x || openTile.y !== roadTile.y
         });
     })
-    return array;
+    return array.map((item) => ({...item, status: 'waiting'}));
 }
 
 export const removeBlockerTilesFromOpen = (open, blockers) => {
@@ -60,20 +51,27 @@ const checkIfCanReturn = (item) => {
     return item
 }
 
-const checkIfAlreadyAddedToOpen = (item, open) => {
-    if(!item) return;
-    if(open.find((openItem) => openItem.x === item.x && openItem.y === item.y)) {
-        return undefined;
-    }
-    return item
+export const addNextParents = (newOpens, open) => {
+    return open.map((openItem) => {
+        let openToReturn = openItem;
+        newOpens.forEach((newOpenItem) => {
+            if(openItem.x === newOpenItem.x && openItem.y === newOpenItem.y) {
+                openToReturn = {
+                    ...openItem,
+                    parents: openItem.parents.concat(newOpenItem.parents) || [],
+                }
+            }
+        })
+        return openToReturn;
+    })
 }
 
 export const evaluateRestTiles = (open) => {
     return open.map((item) => {
-        if(item.STATUS === 'waiting') {
+        if(item.status === 'waiting') {
             return {
                 ...item,
-                STATUS: 'skipped',
+                status: 'skipped',
             }
         }
         return item
@@ -81,63 +79,47 @@ export const evaluateRestTiles = (open) => {
 }
 
 
-export const doCalculations = (position, open) => {
+export const doCalculations = (position) => {
     const leftTile = addCosts(
-        checkIfAlreadyAddedToOpen(
             checkIfCanReturn({ x: letCalculateLowerPosition(position.x), y: position.y }),
-            open
-        )
+            position
     );
     const rightTile = addCosts(
-        checkIfAlreadyAddedToOpen(
             checkIfCanReturn({ x: letCalculateHigherPosition(position.x), y: position.y }),
-            open,
-        )
+            position
     );
     const topTile = addCosts(
-        checkIfAlreadyAddedToOpen(
             checkIfCanReturn({ x: position.x, y: letCalculateHigherPosition(position.y) }),
-            open
-        )
+        position
     );
     const bottomTile = addCosts(
-        checkIfAlreadyAddedToOpen(
             checkIfCanReturn({ x: position.x, y: letCalculateLowerPosition(position.y) }),
-            open
-        )
+        position
     );
     const topLeftTile = addCosts(
-        checkIfAlreadyAddedToOpen(
             checkIfCanReturn({ x: letCalculateLowerPosition(position.x), y: letCalculateHigherPosition(position.y) }),
-            open
-        )
+        position
     );
     const topRightTile = addCosts(
-        checkIfAlreadyAddedToOpen(
             checkIfCanReturn({ x: letCalculateHigherPosition(position.x), y: letCalculateHigherPosition(position.y) }),
-            open
-        )
+        position
     );
     const bottomLeftTile = addCosts(
-        checkIfAlreadyAddedToOpen(
             checkIfCanReturn({ x: letCalculateLowerPosition(position.x), y: letCalculateLowerPosition(position.y) }),
-            open
-        )
+        position
     );
     const bottomRightTile = addCosts(
-        checkIfAlreadyAddedToOpen(
             checkIfCanReturn({ x: letCalculateHigherPosition(position.x), y: letCalculateLowerPosition(position.y) }),
-            open,
-        )
+        position
     );
     return {
-        leftTile: leftTile && addTentativeCosts(position, leftTile),
-        rightTile: rightTile && addTentativeCosts(position, rightTile),
-        topTile: topTile && addTentativeCosts(position, topTile),
-        bottomTile: bottomTile && addTentativeCosts(position, bottomTile),
-        topLeftTile: topLeftTile && addTentativeCosts(position, topLeftTile),
-        topRightTile: topRightTile && addTentativeCosts(position, topRightTile),
-        bottomLeftTile: bottomLeftTile && addTentativeCosts(position, bottomLeftTile),
-        bottomRightTile: bottomRightTile && addTentativeCosts(position, bottomRightTile),
+        leftTile: leftTile && leftTile,
+        rightTile: rightTile && rightTile,
+        topTile: topTile && topTile,
+        bottomTile: bottomTile && bottomTile,
+        topLeftTile: topLeftTile && topLeftTile,
+        topRightTile: topRightTile && topRightTile,
+        bottomLeftTile: bottomLeftTile && bottomLeftTile,
+        bottomRightTile: bottomRightTile && bottomRightTile,
     }
 }

@@ -21,9 +21,7 @@
 }
 
 
-.road {
-    background: blue !important;
-}
+
 
 .is_open {
     background: green;
@@ -39,4 +37,12 @@
 
 .is_user {
     background: blueviolet ;
+}
+
+.is_path {
+    background-color: brown !important;
+}
+
+.is_tentative {
+    background-color: yellow !important;
 }
