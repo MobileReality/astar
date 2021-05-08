@@ -2,7 +2,7 @@ import React from 'react';
 import { Tile } from './Tile';
 import './Row.css'
 
-const MemoRow = ({ x, columns, blockers, open, road, goal, userPosition, setTileAsBlocker, isSetting }) => {
+const MemoRow = ({ x, columns, blockers, open, road, goal, path, userPosition, setTileAsBlocker, isSetting }) => {
     const columnsToRender = new Array(columns).fill(x);
 
     const isOpen = (y) => {
@@ -17,6 +17,11 @@ const MemoRow = ({ x, columns, blockers, open, road, goal, userPosition, setTile
     const isGoal = (y) => {
         return goal && goal.y === y;
     }
+
+    const isPath = (y) => {
+        return path.length > 0 && path.find((pathTile) => pathTile.y === y);
+    }
+
     const isUserPosition = (x, y) => {
         return userPosition.x === x && userPosition.y === y;
     }
@@ -24,7 +29,7 @@ const MemoRow = ({ x, columns, blockers, open, road, goal, userPosition, setTile
     return(
         <div className="row">
             {columnsToRender
-                .map((item, index) => ({ x: item, y: index }))
+                .map((item, index) => ({ x: item, y: index, ...item }))
                 .map((item, index) => {
                 return <Tile
                     key={`${item.x}_${item.y}`}
@@ -33,6 +38,7 @@ const MemoRow = ({ x, columns, blockers, open, road, goal, userPosition, setTile
                     isOpen={isOpen(item.y)}
                     isRoad={isRoad(item.y)}
                     isGoal={isGoal(item.y)}
+                    isPath={isPath(item.y)}
                     isUserPosition={isUserPosition(item.x, item.y)}
                     setTileAsBlocker={setTileAsBlocker}
                     isSetting={isSetting}

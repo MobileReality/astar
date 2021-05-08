@@ -24,3 +24,6 @@ yarn-error.log*
 
 # IDE
 .idea
+
+# WINDOWS 10
+/node-tar-extract

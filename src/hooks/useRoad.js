@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { doCalculations } from '../utils/doMoveCalculations';
+import {doCalculations, evaluateRestTiles} from '../utils/doMoveCalculations';
 import { removeUndefined } from '../utils/getUniques';
-import { evaluateTilesFromOpen, removeCurrentPositionFromOpen, removeBlockerTilesFromOpen, evaluateRestTiles } from "../utils/doMoveCalculations";
+import { evaluateTilesFromOpen, removeCurrentPositionFromOpen, removeBlockerTilesFromOpen } from "../utils/doMoveCalculations";
 
-export const useRoad = (currentPlace, blockers) => {
+
+export const useRoad = (player, blockers, count, move) => {
     const {
         leftTile,
         rightTile,
@@ -13,9 +14,9 @@ export const useRoad = (currentPlace, blockers) => {
         topRightTile,
         bottomLeftTile,
         bottomRightTile,
-    } = doCalculations(currentPlace, [])
-    const [road, setRoad] = useState([currentPlace]);
-
+    } = doCalculations(player, [])
+    const [road, setRoad] = useState([player]);
+    const [path, setPath] = useState([]);
     const uniques = removeUndefined([
         leftTile,
         rightTile,
@@ -28,6 +29,8 @@ export const useRoad = (currentPlace, blockers) => {
     ]);
     const [open, setOpen] = useState(evaluateTilesFromOpen(uniques, road));
 
+
+
     useEffect(() => {
         const {
             leftTile,
@@ -38,7 +41,7 @@ export const useRoad = (currentPlace, blockers) => {
             topRightTile,
             bottomLeftTile,
             bottomRightTile,
-        } = doCalculations(currentPlace, open)
+        } = doCalculations(player, open)
         const newUniques = removeUndefined([
             leftTile,
             rightTile,
@@ -49,19 +52,60 @@ export const useRoad = (currentPlace, blockers) => {
             bottomLeftTile,
             bottomRightTile,
         ])
-        setRoad((prevState) => prevState.concat(currentPlace))
         setOpen((prevState) => {
-            const uniquesWithoutRoadTiles = evaluateTilesFromOpen(newUniques, road);
+            const uniquesWithoutRoadTiles = evaluateTilesFromOpen(newUniques, road.concat(player));
             const withoutBlocker = removeBlockerTilesFromOpen(uniquesWithoutRoadTiles, blockers);
-            return removeCurrentPositionFromOpen(prevState.concat(withoutBlocker), currentPlace);
+            const withoutCurrentPlace = removeCurrentPositionFromOpen(prevState.concat(withoutBlocker), player);
+            return withoutCurrentPlace
         })
-    }, [currentPlace.x, currentPlace.y])
+    }, [player.x, player.y])
 
 
+
+    const findLowestCostTile = () => {
+        let openWithoutEvaluation = open.filter((item) => item.status === 'waiting');
+        const openAllCosts = openWithoutEvaluation.map((item) => item.cost);
+        const min = Math.min(...openAllCosts);
+        const arrayOfMins = openWithoutEvaluation.filter((item) => item.cost === min);
+
+        if(arrayOfMins.length > 1) {
+            const openHMinCosts = arrayOfMins.map((item) => item.hCost);
+            const hMin = Math.min(...openHMinCosts);
+            const tileToMove = openWithoutEvaluation.find((item) => item.hCost === hMin);
+            return tileToMove;
+        }
+        const tileToMove = openWithoutEvaluation.find((item) => item.cost === min);
+        return tileToMove;
+    }
+
+    useEffect(() => {
+        if(count > 0) {
+            const nextTile = findLowestCostTile();
+            move(nextTile)
+            setRoad((prevState) => prevState.concat(nextTile))
+        }
+    }, [count])
+
+
+    const resolvePath = (start) => {
+        let tempPath = []
+        const getParent = (tile) => {
+            if (tile.parent === null) return;
+            tempPath.push(tile.parent);
+            getParent(tile.parent)
+        }
+        getParent(start);
+        setPath(tempPath);
+    }
+
+    const setFinalPath = () => {
+        resolvePath(road[road.length - 1]);
+    }
 
     return {
         open,
         road,
-        setOpen
+        path,
+        setFinalPath,
     }
 }

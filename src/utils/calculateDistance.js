@@ -1,75 +1,62 @@
 import { START, GOAL } from '../constants';
 
-const gCost = (currentPosition) => { // gCost from start
-    const width = currentPosition.x - START.x;
-    const height = currentPosition.y - START.y;
-    return Math.sqrt(width*width + height*height);
+const gCost = (tilePosition, playerPosition) => { // gCost from start
+    const width = tilePosition.x - playerPosition.x;
+    const height = tilePosition.y - playerPosition.y;
+    return Number(Math.sqrt(width*width + height*height).toFixed(1))
 }
 
-const hCost = (currentPosition) => { // hCost from end
-    const width = GOAL.x - currentPosition.x;
-    const height = GOAL.y - currentPosition.y;
-    return Math.sqrt(width*width + height*height);
+const hCost = (tilePosition) => { // hCost from end
+    const width = GOAL.x - tilePosition.x;
+    const height = GOAL.y - tilePosition.y;
+    return Number(Math.sqrt(width*width + height*height).toFixed(1))
 }
 
 const tCost = (source, currentPosition) => {
     const neighbourWidth = currentPosition.x - source.x;
     const neighbourHeight = currentPosition.y - source.y;
-    const t_cost = Math.sqrt(neighbourWidth*neighbourWidth + neighbourHeight*neighbourHeight);
-    return t_cost + gCost(source);
+    const t_cost = Number(Math.sqrt(neighbourWidth*neighbourWidth + neighbourHeight*neighbourHeight).toFixed(1));
+    const cost = t_cost + gCost(source);
+    return Number(cost.toFixed(1));
 }
 
-export const addCosts = (item) => {
+export const addCosts = (item, player = undefined) => {
     if(!item) return undefined;
-    return {
+    const g_cost = gCost(item, player) + player.gCost;
+    const h_cost = hCost(item);
+    const cost = g_cost + h_cost;
+    const itemToReturn = {
         x: item.x,
         y: item.y,
-        gCost: gCost(item),
-        hCost: hCost(item),
-        cost: gCost(item) + hCost(item),
+        gCost: g_cost,
+        hCost: h_cost,
+        cost: Number(cost.toFixed(1)),
+        parent: player,
     }
+    return itemToReturn
 }
 
-
+//   parentKey: JSON.stringify({ x: source.x, y: source.y }),
 export const addTentativeCosts = (source, item) => {
+    const tentativeCost = tCost(source, item);
+    if(tentativeCost < item.gCost) {
+        return {
+            ...item,
+            gCost: tentativeCost,
+            cost: item.hCost + tentativeCost,
+            source: { x: source.x, y: source.y },
+            tCost: tentativeCost,
+            IS_TENTATIVE_BETTER: true,
+        }
+    }
     return {
         ...item,
         source: { x: source.x, y: source.y },
-        tCost: tCost(source, item),
+        tCost: tentativeCost,
     }
 }
 
-/*
-const openWithoutEvaluation = open.filter((item) => item.STATUS !== 'road');
-const openOnlyWaiting = openWithoutEvaluation.filter((item) => item.STATUS === 'waiting');
-const openGCosts = openOnlyWaiting.map((item) => item.gCost);
-const openTCosts = openOnlyWaiting.map((item) => item.tCost);
-const minG = Math.min(...openGCosts);
-const minT = Math.min(...openTCosts);
-if(minT < minG) {
-    setOpen(evaluateRestTiles(open))
-    const tileToMove = openWithoutEvaluation.find((item) => item.tCost === minT);
-    return tileToMove
+export const getPath = (open) => {
+    return open.filter((item) => !!item.source).map((item) => item.source)
 }
-setOpen(evaluateRestTiles(open))
 
-const tileToMove = openWithoutEvaluation.find((item) => item.gCost === minG);
-return tileToMove
-
- */
-export const findLowestCostTile = (open, setOpen) => {
-    const openWithoutEvaluation = open.filter((item) => item.STATUS !== 'road');
-    const openAllCosts = openWithoutEvaluation.map((item) => item.cost);
-
-    const min = Math.min(...openAllCosts);
-    const arrayOfMins = openWithoutEvaluation.filter((item) => item.cost === min);
-
-    if(arrayOfMins.length > 1) {
-        const openHMinCosts = arrayOfMins.map((item) => item.hCost);
-        const hMin = Math.min(...openHMinCosts);
-        const tileToMove = openWithoutEvaluation.find((item) => item.hCost === hMin);
-        return tileToMove;
-    }
-    const tileToMove = openWithoutEvaluation.find((item) => item.cost === min);
-    return tileToMove;
-}

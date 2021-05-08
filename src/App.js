@@ -5,20 +5,21 @@ import { useBlockers } from './hooks/useBlockers';
 import { usePlayer } from './hooks/useUser';
 import { useRoad } from './hooks/useRoad';
 import { START, GOAL, DIMENSION } from './constants';
-import { findLowestCostTile } from './utils/calculateDistance';
 
 function App() {
-    const { position, move } = usePlayer(START);
+    const [count, setCount] = useState(0);
+    const { player, move } = usePlayer(START);
     const { blockers, setBlockersOnMap, setTileAsBlocker } = useBlockers({ dimension: DIMENSION });
-    const { open, road, setOpen } = useRoad(position, blockers);
+    const { open, road, path, setFinalPath } = useRoad(player, blockers, count, move);
     const [isSetting, setIsSetting] = useState(false);
-    const openRef = useRef(open);
-    const positionRef = useRef(position)
+    const positionRef = useRef(player)
 
     useEffect(() => {
-        openRef.current = open;
-        positionRef.current = position;
-    }, [open, position])
+        positionRef.current = player;
+    })
+
+
+    const moveByOneTile = () => setCount((prevState) => prevState + 1);
 
     const moveToLowestCost = () => {
         const handler = setInterval(() => {
@@ -26,31 +27,30 @@ function App() {
                 clearInterval(handler);
                 return
             }
-            move(findLowestCostTile(openRef.current, setOpen))
+            moveByOneTile()
         }, 20);
     }
 
 
-    const moveByOneTile = () => move(findLowestCostTile(openRef.current, setOpen))
-
-
-    console.log(open);
 
     return (
-    <div className="App" onMouseDown={() => setIsSetting(true)} onMouseUp={() => setIsSetting(false)}>
+    <div className="App"
+         onMouseDown={() => setIsSetting(true)} onMouseUp={() => setIsSetting(false)}
+    >
       <header className="App-header">
-
           <button onClick={moveToLowestCost}>move</button>
           <button onClick={moveByOneTile}>move by one tile</button>
-          <button onClick={() => setBlockersOnMap()}>set blockers</button>
+          <button onClick={setBlockersOnMap}>set blockers</button>
+          <button onClick={setFinalPath}>set path</button>
           <Map
               columns={DIMENSION}
               rows={DIMENSION}
               blockers={blockers}
               open={open}
               road={road}
+              path={path}
               goal={GOAL}
-              userPosition={position}
+              userPosition={player}
               setTileAsBlocker={setTileAsBlocker}
               isSetting={isSetting}
           />
