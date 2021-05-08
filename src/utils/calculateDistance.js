@@ -1,14 +1,14 @@
 import { START, GOAL } from '../constants';
 
-const gCost = (currentPosition) => { // gCost from start
-    const width = currentPosition.x - START.x;
-    const height = currentPosition.y - START.y;
+const gCost = (tilePosition, playerPosition) => { // gCost from start
+    const width = tilePosition.x - playerPosition.x;
+    const height = tilePosition.y - playerPosition.y;
     return Number(Math.sqrt(width*width + height*height).toFixed(1))
 }
 
-const hCost = (currentPosition) => { // hCost from end
-    const width = GOAL.x - currentPosition.x;
-    const height = GOAL.y - currentPosition.y;
+const hCost = (tilePosition) => { // hCost from end
+    const width = GOAL.x - tilePosition.x;
+    const height = GOAL.y - tilePosition.y;
     return Number(Math.sqrt(width*width + height*height).toFixed(1))
 }
 
@@ -20,21 +20,20 @@ const tCost = (source, currentPosition) => {
     return Number(cost.toFixed(1));
 }
 
-export const addCosts = (item, position = undefined) => {
+export const addCosts = (item, player = undefined) => {
     if(!item) return undefined;
-    const g_cost = gCost(item);
+    const g_cost = gCost(item, player) + player.gCost;
     const h_cost = hCost(item);
-    const tentativeCost = position && tCost(position, item);
-    const cost = g_cost + h_cost
-    return {
+    const cost = g_cost + h_cost;
+    const itemToReturn = {
         x: item.x,
         y: item.y,
         gCost: g_cost,
         hCost: h_cost,
-        tCost: tentativeCost,
         cost: Number(cost.toFixed(1)),
-        parents: [addCosts(position)],
+        parent: player,
     }
+    return itemToReturn
 }
 
 //   parentKey: JSON.stringify({ x: source.x, y: source.y }),
@@ -60,23 +59,4 @@ export const addTentativeCosts = (source, item) => {
 export const getPath = (open) => {
     return open.filter((item) => !!item.source).map((item) => item.source)
 }
-
-/*
-const openWithoutEvaluation = open.filter((item) => item.STATUS !== 'road');
-const openOnlyWaiting = openWithoutEvaluation.filter((item) => item.STATUS === 'waiting');
-const openGCosts = openOnlyWaiting.map((item) => item.gCost);
-const openTCosts = openOnlyWaiting.map((item) => item.tCost);
-const minG = Math.min(...openGCosts);
-const minT = Math.min(...openTCosts);
-if(minT < minG) {
-    setOpen(evaluateRestTiles(open))
-    const tileToMove = openWithoutEvaluation.find((item) => item.tCost === minT);
-    return tileToMove
-}
-setOpen(evaluateRestTiles(open))
-
-const tileToMove = openWithoutEvaluation.find((item) => item.gCost === minG);
-return tileToMove
-
- */
 

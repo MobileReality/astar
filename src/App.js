@@ -8,14 +8,14 @@ import { START, GOAL, DIMENSION } from './constants';
 
 function App() {
     const [count, setCount] = useState(0);
-    const { position, move } = usePlayer(START);
+    const { player, move } = usePlayer(START);
     const { blockers, setBlockersOnMap, setTileAsBlocker } = useBlockers({ dimension: DIMENSION });
-    const { open, road, path, setFinalPath } = useRoad(position, blockers, count, move);
+    const { open, road, path, setFinalPath } = useRoad(player, blockers, count, move);
     const [isSetting, setIsSetting] = useState(false);
-    const positionRef = useRef(position)
+    const positionRef = useRef(player)
 
     useEffect(() => {
-        positionRef.current = position;
+        positionRef.current = player;
     })
 
 
@@ -28,7 +28,7 @@ function App() {
                 return
             }
             moveByOneTile()
-        }, 100);
+        }, 20);
     }
 
 
@@ -50,7 +50,7 @@ function App() {
               road={road}
               path={path}
               goal={GOAL}
-              userPosition={position}
+              userPosition={player}
               setTileAsBlocker={setTileAsBlocker}
               isSetting={isSetting}
           />

@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import {doCalculations, addNextParents} from '../utils/doMoveCalculations';
+import {doCalculations, evaluateRestTiles} from '../utils/doMoveCalculations';
 import { removeUndefined } from '../utils/getUniques';
 import { evaluateTilesFromOpen, removeCurrentPositionFromOpen, removeBlockerTilesFromOpen } from "../utils/doMoveCalculations";
-import { getPath } from "../utils/calculateDistance";
-import groupBy from 'lodash.groupby';
 
-export const useRoad = (currentPlace, blockers, count, move) => {
+
+export const useRoad = (player, blockers, count, move) => {
     const {
         leftTile,
         rightTile,
@@ -15,8 +14,8 @@ export const useRoad = (currentPlace, blockers, count, move) => {
         topRightTile,
         bottomLeftTile,
         bottomRightTile,
-    } = doCalculations(currentPlace)
-    const [road, setRoad] = useState([currentPlace]);
+    } = doCalculations(player, [])
+    const [road, setRoad] = useState([player]);
     const [path, setPath] = useState([]);
     const uniques = removeUndefined([
         leftTile,
@@ -42,7 +41,7 @@ export const useRoad = (currentPlace, blockers, count, move) => {
             topRightTile,
             bottomLeftTile,
             bottomRightTile,
-        } = doCalculations(currentPlace)
+        } = doCalculations(player, open)
         const newUniques = removeUndefined([
             leftTile,
             rightTile,
@@ -54,20 +53,17 @@ export const useRoad = (currentPlace, blockers, count, move) => {
             bottomRightTile,
         ])
         setOpen((prevState) => {
-            const uniquesWithoutRoadTiles = evaluateTilesFromOpen(newUniques, road.concat(currentPlace));
+            const uniquesWithoutRoadTiles = evaluateTilesFromOpen(newUniques, road.concat(player));
             const withoutBlocker = removeBlockerTilesFromOpen(uniquesWithoutRoadTiles, blockers);
-            const withoutCurrentPlace = removeCurrentPositionFromOpen(prevState.concat(withoutBlocker), currentPlace);
+            const withoutCurrentPlace = removeCurrentPositionFromOpen(prevState.concat(withoutBlocker), player);
             return withoutCurrentPlace
         })
-    }, [currentPlace.x, currentPlace.y])
+    }, [player.x, player.y])
 
 
 
     const findLowestCostTile = () => {
         let openWithoutEvaluation = open.filter((item) => item.status === 'waiting');
-        if(openWithoutEvaluation.length === 0) {
-            openWithoutEvaluation = open.filter((item) => item.status === 'skipped')
-        }
         const openAllCosts = openWithoutEvaluation.map((item) => item.cost);
         const min = Math.min(...openAllCosts);
         const arrayOfMins = openWithoutEvaluation.filter((item) => item.cost === min);
@@ -84,23 +80,26 @@ export const useRoad = (currentPlace, blockers, count, move) => {
 
     useEffect(() => {
         if(count > 0) {
-            move(findLowestCostTile())
-            setRoad((prevState) => prevState.concat(findLowestCostTile()))
-
+            const nextTile = findLowestCostTile();
+            move(nextTile)
+            setRoad((prevState) => prevState.concat(nextTile))
         }
     }, [count])
 
 
-    const resolvePath = () => {
+    const resolvePath = (start) => {
         let tempPath = []
-        road.reverse().forEach((item) => {
-            tempPath = tempPath.concat(item.parents)
-        })
-        setPath(tempPath.filter(item => !!item));
+        const getParent = (tile) => {
+            if (tile.parent === null) return;
+            tempPath.push(tile.parent);
+            getParent(tile.parent)
+        }
+        getParent(start);
+        setPath(tempPath);
     }
 
     const setFinalPath = () => {
-        resolvePath();
+        resolvePath(road[road.length - 1]);
     }
 
     return {

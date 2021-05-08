@@ -66,6 +66,14 @@ export const addNextParents = (newOpens, open) => {
     })
 }
 
+const checkIfAlreadyAddedToOpen = (item, open) => {
+    if(!item) return;
+    if(open.find((openItem) => openItem.x === item.x && openItem.y === item.y)) {
+        return undefined;
+    }
+    return item
+}
+
 export const evaluateRestTiles = (open) => {
     return open.map((item) => {
         if(item.status === 'waiting') {
@@ -79,47 +87,48 @@ export const evaluateRestTiles = (open) => {
 }
 
 
-export const doCalculations = (position) => {
+export const doCalculations = (player, open) => {
+    const check = (tile) => checkIfAlreadyAddedToOpen(tile, open)
     const leftTile = addCosts(
-            checkIfCanReturn({ x: letCalculateLowerPosition(position.x), y: position.y }),
-            position
-    );
+        checkIfCanReturn({ x: letCalculateLowerPosition(player.x), y: player.y }),
+        player
+    )
     const rightTile = addCosts(
-            checkIfCanReturn({ x: letCalculateHigherPosition(position.x), y: position.y }),
-            position
+        checkIfCanReturn({ x: letCalculateHigherPosition(player.x), y: player.y }),
+        player
     );
     const topTile = addCosts(
-            checkIfCanReturn({ x: position.x, y: letCalculateHigherPosition(position.y) }),
-        position
+        checkIfCanReturn({ x: player.x, y: letCalculateHigherPosition(player.y) }),
+        player
     );
     const bottomTile = addCosts(
-            checkIfCanReturn({ x: position.x, y: letCalculateLowerPosition(position.y) }),
-        position
+        checkIfCanReturn({ x: player.x, y: letCalculateLowerPosition(player.y) }),
+        player
     );
     const topLeftTile = addCosts(
-            checkIfCanReturn({ x: letCalculateLowerPosition(position.x), y: letCalculateHigherPosition(position.y) }),
-        position
+        checkIfCanReturn({ x: letCalculateLowerPosition(player.x), y: letCalculateHigherPosition(player.y) }),
+        player
     );
     const topRightTile = addCosts(
-            checkIfCanReturn({ x: letCalculateHigherPosition(position.x), y: letCalculateHigherPosition(position.y) }),
-        position
+        checkIfCanReturn({ x: letCalculateHigherPosition(player.x), y: letCalculateHigherPosition(player.y) }),
+        player
     );
     const bottomLeftTile = addCosts(
-            checkIfCanReturn({ x: letCalculateLowerPosition(position.x), y: letCalculateLowerPosition(position.y) }),
-        position
+        checkIfCanReturn({ x: letCalculateLowerPosition(player.x), y: letCalculateLowerPosition(player.y) }),
+        player
     );
     const bottomRightTile = addCosts(
-            checkIfCanReturn({ x: letCalculateHigherPosition(position.x), y: letCalculateLowerPosition(position.y) }),
-        position
+        checkIfCanReturn({ x: letCalculateHigherPosition(player.x), y: letCalculateLowerPosition(player.y) }),
+        player
     );
     return {
-        leftTile: leftTile && leftTile,
-        rightTile: rightTile && rightTile,
-        topTile: topTile && topTile,
-        bottomTile: bottomTile && bottomTile,
-        topLeftTile: topLeftTile && topLeftTile,
-        topRightTile: topRightTile && topRightTile,
-        bottomLeftTile: bottomLeftTile && bottomLeftTile,
-        bottomRightTile: bottomRightTile && bottomRightTile,
+        leftTile: leftTile && check(leftTile),
+        rightTile: rightTile && check(rightTile),
+        topTile: topTile && check(topTile),
+        bottomTile: bottomTile && check(bottomTile),
+        topLeftTile: topLeftTile && check(topLeftTile),
+        topRightTile: topRightTile && check(topRightTile),
+        bottomLeftTile: bottomLeftTile && check(bottomLeftTile),
+        bottomRightTile: bottomRightTile && check(bottomRightTile),
     }
 }

@@ -2,7 +2,11 @@ import { useState, useEffect } from 'react';
 import { letCalculateLowerPosition, letCalculateHigherPosition } from '../utils/doMoveCalculations';
 
 export const usePlayer = (startingPoint) => {
-    const [position, setPosition] = useState(startingPoint);
+    const [player, setPosition] = useState({
+        ...startingPoint,
+        gCost: 0,
+        parent: null,
+    });
 
     function setListenToArrows() {
         document.addEventListener('keyup', function(event) {
@@ -63,7 +67,7 @@ export const usePlayer = (startingPoint) => {
     }, [])
 
     return {
-        position,
+        player,
         setPosition,
         move,
     }
