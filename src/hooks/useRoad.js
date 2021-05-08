@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import {doCalculations, evaluateRestTiles} from '../utils/doMoveCalculations';
+import { doCalculations } from '../utils/doMoveCalculations';
+import { GOAL } from '../constants';
 import { removeUndefined } from '../utils/getUniques';
 import { evaluateTilesFromOpen, removeCurrentPositionFromOpen, removeBlockerTilesFromOpen } from "../utils/doMoveCalculations";
 
@@ -28,7 +29,7 @@ export const useRoad = (player, blockers, count, move) => {
         bottomRightTile,
     ]);
     const [open, setOpen] = useState(evaluateTilesFromOpen(uniques, road));
-
+    const isGoalReached = road[road.length - 1] && road[road.length - 1].x === GOAL.x && road[road.length - 1].y === GOAL.y
 
 
     useEffect(() => {
@@ -79,7 +80,7 @@ export const useRoad = (player, blockers, count, move) => {
     }
 
     useEffect(() => {
-        if(count > 0) {
+        if(count > 0 && !isGoalReached) {
             const nextTile = findLowestCostTile();
             move(nextTile)
             setRoad((prevState) => prevState.concat(nextTile))
