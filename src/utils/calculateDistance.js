@@ -1,23 +1,15 @@
-import { START, GOAL } from '../constants';
+import { GOAL } from '../constants';
 
 const gCost = (tilePosition, playerPosition) => { // gCost from start
     const width = tilePosition.x - playerPosition.x;
     const height = tilePosition.y - playerPosition.y;
-    return Number(Math.sqrt(width*width + height*height).toFixed(1))
+    return Math.sqrt(width*width + height*height);
 }
 
 const hCost = (tilePosition) => { // hCost from end
     const width = GOAL.x - tilePosition.x;
     const height = GOAL.y - tilePosition.y;
-    return Number(Math.sqrt(width*width + height*height).toFixed(1))
-}
-
-const tCost = (source, currentPosition) => {
-    const neighbourWidth = currentPosition.x - source.x;
-    const neighbourHeight = currentPosition.y - source.y;
-    const t_cost = Number(Math.sqrt(neighbourWidth*neighbourWidth + neighbourHeight*neighbourHeight).toFixed(1));
-    const cost = t_cost + gCost(source);
-    return Number(cost.toFixed(1));
+    return Math.sqrt(width*width + height*height);
 }
 
 export const addCosts = (item, player = undefined) => {
@@ -30,33 +22,25 @@ export const addCosts = (item, player = undefined) => {
         y: item.y,
         gCost: g_cost,
         hCost: h_cost,
-        cost: Number(cost.toFixed(1)),
+        cost: cost,
         parent: player,
     }
     return itemToReturn
 }
-
-//   parentKey: JSON.stringify({ x: source.x, y: source.y }),
-export const addTentativeCosts = (source, item) => {
-    const tentativeCost = tCost(source, item);
-    if(tentativeCost < item.gCost) {
-        return {
-            ...item,
-            gCost: tentativeCost,
-            cost: item.hCost + tentativeCost,
-            source: { x: source.x, y: source.y },
-            tCost: tentativeCost,
-            IS_TENTATIVE_BETTER: true,
-        }
-    }
+export const getMinCostTiles = (data) => {
+    const allCosts = data.map((item) => item.cost);
+    const min = Math.min(...allCosts);
     return {
-        ...item,
-        source: { x: source.x, y: source.y },
-        tCost: tentativeCost,
-    }
+        minArray: data.filter((item) => item.cost === min),
+        min,
+    };
 }
 
-export const getPath = (open) => {
-    return open.filter((item) => !!item.source).map((item) => item.source)
+export const getMinHCostTile = (data) => {
+    const hMinCosts = data.map((item) => item.hCost);
+    const hMin = Math.min(...hMinCosts);
+    const tileToMove = data.find((item) => item.hCost === hMin);
+    return tileToMove;
 }
 
+export const getMinCostTile = (tiles, min) => tiles.find((item) => item.cost === min);

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { letCalculateLowerPosition, letCalculateHigherPosition } from '../utils/doMoveCalculations';
+import { letCalculateLowerPosition, letCalculateHigherPosition } from '../utils/evaluateCalculations';
 
 export const usePlayer = (startingPoint) => {
     const [player, setPosition] = useState({

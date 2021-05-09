@@ -1,5 +1,5 @@
 import { addCosts } from './calculateDistance';
-import {DIMENSION} from "../constants";
+import { DIMENSION } from "../constants";
 
 export const letCalculateLowerPosition = (coordinate) => {
     if(coordinate <= 0) {
@@ -13,10 +13,6 @@ export const letCalculateHigherPosition = (coordinate) => {
         return -1
     }
     return coordinate + 1;
-}
-
-export const removeNegativeValues = (array) => {
-    return array.filter((item) => item.x >= 0 && item.y >= 0);
 }
 
 export const evaluateTilesFromOpen = (open, road) => {
@@ -51,21 +47,6 @@ const checkIfCanReturn = (item) => {
     return item
 }
 
-export const addNextParents = (newOpens, open) => {
-    return open.map((openItem) => {
-        let openToReturn = openItem;
-        newOpens.forEach((newOpenItem) => {
-            if(openItem.x === newOpenItem.x && openItem.y === newOpenItem.y) {
-                openToReturn = {
-                    ...openItem,
-                    parents: openItem.parents.concat(newOpenItem.parents) || [],
-                }
-            }
-        })
-        return openToReturn;
-    })
-}
-
 const checkIfAlreadyAddedToOpen = (item, open) => {
     if(!item) return;
     if(open.find((openItem) => openItem.x === item.x && openItem.y === item.y)) {
@@ -85,6 +66,11 @@ export const evaluateRestTiles = (open) => {
         return item
     })
 }
+
+export const removeUndefined = (array) => {
+    return array.filter((item) => item);
+}
+
 
 
 export const doCalculations = (player, open) => {
@@ -130,5 +116,15 @@ export const doCalculations = (player, open) => {
         topRightTile: topRightTile && check(topRightTile),
         bottomLeftTile: bottomLeftTile && check(bottomLeftTile),
         bottomRightTile: bottomRightTile && check(bottomRightTile),
+        neighbours: {
+            leftTile,
+            rightTile,
+            topTile,
+            bottomTile,
+            topLeftTile,
+            topRightTile,
+            bottomLeftTile,
+            bottomRightTile,
+        }
     }
 }
