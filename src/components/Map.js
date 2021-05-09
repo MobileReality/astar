@@ -14,7 +14,7 @@ export const Map = ({ columns, rows, blockers, open, road, goal, path, userPosit
     return(
         <div className="map">
             {rowsToRender.map(
-                (undefined, index) => {
+                (_, index) => {
                     return(
                          <Row
                              key={index}

@@ -11,7 +11,7 @@ import { getMinCostTiles, getMinHCostTile, getMinCostTile } from '../utils/calcu
 import { GOAL } from '../constants';
 
 
-export const useRoad = (player, blockers, count, move) => {
+export const useRoad = (player, blockers, count, move, withSkipping, withNeighbourEvaluation) => {
     const [road, setRoad] = useState([player]);
     const [path, setPath] = useState([]);
     // initial tiles
@@ -38,9 +38,10 @@ export const useRoad = (player, blockers, count, move) => {
 
     const [neighbours, setCurrentNeighbours] = useState(evaluateTilesFromOpen(uniques, road));
     const [open, setOpen] = useState(evaluateTilesFromOpen(uniques, road));
-    const isGoalReached = road[road.length - 1] && road[road.length - 1].x === GOAL.x && road[road.length - 1].y === GOAL.y
+    const isGoalReached = (position) => position && position.x === GOAL.x && position.y === GOAL.y
 
     // update area based on new position
+    /* eslint-disable */
     useEffect(() => {
         const {
             leftTile,
@@ -82,7 +83,7 @@ export const useRoad = (player, blockers, count, move) => {
         setCurrentNeighbours(parseData(newNeighbours));
         setOpen((prevState) => parseData(newUniques, prevState))
     }, [player.x, player.y])
-
+    /* eslint-enable */
 
 
     const findLowestCostTile = () => {
@@ -92,14 +93,16 @@ export const useRoad = (player, blockers, count, move) => {
             openWithoutEvaluation = open.filter((item) => item.status === 'skipped');
         }
         const { minArray, min } = getMinCostTiles(openWithoutEvaluation);
-        const neighboursCosts = getMinCostTiles(neighbours);
 
-        // evaluating only neighbour tiles
-        if(neighboursCosts.min < min) {
-            if(neighboursCosts.minArray.length > 1) {
-                return getMinHCostTile(neighboursCosts.minArray);
+        if(withNeighbourEvaluation) { // evaluating only neighbour tiles
+            const neighboursCosts = getMinCostTiles(neighbours);
+
+            if(neighboursCosts.min < min) {
+                if(neighboursCosts.minArray.length > 1) {
+                    return getMinHCostTile(neighboursCosts.minArray);
+                }
+                return getMinCostTile(neighbours, neighboursCosts.min);
             }
-            return getMinCostTile(neighbours, neighboursCosts.min);
         }
 
         if(minArray.length > 1) {
@@ -108,15 +111,18 @@ export const useRoad = (player, blockers, count, move) => {
         return getMinCostTile(openWithoutEvaluation, min);
     }
 
+    /* eslint-disable */
     useEffect(() => {
-        if(count > 0 && !isGoalReached) {
+        if(count > 0 && !isGoalReached(road[road.length - 1])) {
             const nextTile = findLowestCostTile();
             move(nextTile)
-            // setOpen((prevState) => evaluateRestTiles(prevState))
+            if(withSkipping) {
+                setOpen((prevState) => evaluateRestTiles(prevState))
+            }
             setRoad((prevState) => prevState.concat(nextTile))
-            setFinalPath()
         }
     }, [count])
+    /* eslint-enable */
 
 
     const resolvePath = (start) => {
@@ -139,5 +145,6 @@ export const useRoad = (player, blockers, count, move) => {
         road,
         path,
         setFinalPath,
+        isGoalReached,
     }
 }
