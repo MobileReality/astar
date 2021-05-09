@@ -121,7 +121,7 @@ export const useRoad = (player, blockers, count, move) => {
         if(count > 0 && !isGoalReached) {
             const nextTile = findLowestCostTile();
             move(nextTile)
-            setOpen((prevState) => evaluateRestTiles(prevState))
+            // setOpen((prevState) => evaluateRestTiles(prevState))
             setRoad((prevState) => prevState.concat(nextTile))
             setFinalPath()
         }

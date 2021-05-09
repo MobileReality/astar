@@ -11,7 +11,7 @@ export const useBlockers = ({ dimension }) => {
                 return coordinate - 1;
             return coordinate
         }
-        return new Array(dimension * 6).fill(0).map(() => ({
+        return new Array(dimension * 8).fill(0).map(() => ({
             x: calculate(),
             y: calculate(),
         }))

@@ -28,7 +28,7 @@ function App() {
                 return
             }
             moveByOneTile()
-        }, 100);
+        }, 5);
     }
 
 
