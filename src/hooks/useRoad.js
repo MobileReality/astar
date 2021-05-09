@@ -1,8 +1,14 @@
 import { useState, useEffect } from 'react';
-import {doCalculations, evaluateRestTiles} from '../utils/doMoveCalculations';
+import {
+    doCalculations,
+    evaluateRestTiles,
+    removeUndefined,
+    evaluateTilesFromOpen,
+    removeCurrentPositionFromOpen,
+    removeBlockerTilesFromOpen,
+} from '../utils/evaluateCalculations';
+import { getMinCostTiles, getMinHCostTile, getMinCostTile } from '../utils/calculateDistance';
 import { GOAL } from '../constants';
-import { removeUndefined } from '../utils/getUniques';
-import { evaluateTilesFromOpen, removeCurrentPositionFromOpen, removeBlockerTilesFromOpen } from "../utils/doMoveCalculations";
 
 
 export const useRoad = (player, blockers, count, move) => {
@@ -80,41 +86,26 @@ export const useRoad = (player, blockers, count, move) => {
 
 
     const findLowestCostTile = () => {
-        const getMinCost = (data) => {
-            const allCosts = data.map((item) => item.cost);
-            const min = Math.min(...allCosts);
-            return {
-                minArray: data.filter((item) => item.cost === min),
-                min,
-            };
-        }
-        const getMinHCost = (data) => {
-            const hMinCosts = data.map((item) => item.hCost);
-            const hMin = Math.min(...hMinCosts);
-            const tileToMove = data.find((item) => item.hCost === hMin);
-            return tileToMove;
-        }
         // evaluating all open tiles
         let openWithoutEvaluation = open.filter((item) => item.status === 'waiting');
         if(openWithoutEvaluation.length === 0) {
             openWithoutEvaluation = open.filter((item) => item.status === 'skipped');
         }
-        const { minArray, min } = getMinCost(openWithoutEvaluation);
-        const neighboursCosts = getMinCost(neighbours);
+        const { minArray, min } = getMinCostTiles(openWithoutEvaluation);
+        const neighboursCosts = getMinCostTiles(neighbours);
 
         // evaluating only neighbour tiles
         if(neighboursCosts.min < min) {
             if(neighboursCosts.minArray.length > 1) {
-                return getMinHCost(neighboursCosts.minArray);
+                return getMinHCostTile(neighboursCosts.minArray);
             }
-            return neighbours.find((item) => item.cost === neighboursCosts.min);
+            return getMinCostTile(neighbours, neighboursCosts.min);
         }
 
         if(minArray.length > 1) {
-            return getMinHCost(minArray);
+            return getMinHCostTile(minArray);
         }
-        const tileToMove = openWithoutEvaluation.find((item) => item.cost === min);
-        return tileToMove;
+        return getMinCostTile(openWithoutEvaluation, min);
     }
 
     useEffect(() => {

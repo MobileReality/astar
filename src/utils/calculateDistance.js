@@ -27,3 +27,20 @@ export const addCosts = (item, player = undefined) => {
     }
     return itemToReturn
 }
+export const getMinCostTiles = (data) => {
+    const allCosts = data.map((item) => item.cost);
+    const min = Math.min(...allCosts);
+    return {
+        minArray: data.filter((item) => item.cost === min),
+        min,
+    };
+}
+
+export const getMinHCostTile = (data) => {
+    const hMinCosts = data.map((item) => item.hCost);
+    const hMin = Math.min(...hMinCosts);
+    const tileToMove = data.find((item) => item.hCost === hMin);
+    return tileToMove;
+}
+
+export const getMinCostTile = (tiles, min) => tiles.find((item) => item.cost === min);

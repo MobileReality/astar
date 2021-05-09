@@ -67,6 +67,11 @@ export const evaluateRestTiles = (open) => {
     })
 }
 
+export const removeUndefined = (array) => {
+    return array.filter((item) => item);
+}
+
+
 
 export const doCalculations = (player, open) => {
     const check = (tile) => checkIfAlreadyAddedToOpen(tile, open)
