@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { oneMap } from '../constants/maps';
+import { maps } from '../constants/maps';
 import '../components/Tile.css'
 
 export const useBlockers = ({ dimension }) => {
@@ -20,9 +20,9 @@ export const useBlockers = ({ dimension }) => {
             .filter(({ x, y }) => (x !== dimension - 1 && y !== dimension - 1))
     }
 
-    const setBlockersBasedOnGeneratedMap = () => {
+    const setBlockersBasedOnGeneratedMap = (mapName) => {
         const blockersInMap = [];
-        oneMap.reverse().forEach((row, yIndex) => {
+        maps[mapName].reverse().forEach((row, yIndex) => {
             row.forEach((tile, xIndex) => {
                 if(tile === '-') return;
                 blockersInMap.push({ x: yIndex, y: xIndex })

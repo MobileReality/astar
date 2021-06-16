@@ -17,13 +17,17 @@
   background-color: #282c34;
   min-height: 100vh;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
 }
 
+.App-content {
+  display: flex;
+  flex-direction: row;
+}
 .App-link {
   color: #61dafb;
 }
@@ -45,4 +49,36 @@
 
 .with-condition {
   background-color: green;
+}
+
+.setting_buttons {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.move-button {
+  margin-bottom: 20px;
+
+}
+.move-button button {
+  all: unset;
+  background-color: red;
+  color: white;
+  font-size: calc(10px + 2vmin);
+  outline: none;
+  -webkit-text-fill-color: white;
+  cursor: pointer;
+  padding: 3px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all .15s ease-in-out;
+}
+
+.move-button button:hover {
+  opacity: .7;
+}
+.move-button button:focus {
+  background-color: black;
 }

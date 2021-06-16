@@ -8,10 +8,9 @@ import {
     removeBlockerTilesFromOpen,
 } from '../utils/evaluateCalculations';
 import { getMinCostTiles, getMinHCostTile, getMinCostTile } from '../utils/calculateDistance';
-import { GOAL } from '../constants';
 
 
-export const useRoad = (player, blockers, count, move, withSkipping, withNeighbourEvaluation) => {
+export const useRoad = (goal, player, blockers, count, move, withSkipping, withNeighbourEvaluation) => {
     const [road, setRoad] = useState([player]);
     const [path, setPath] = useState([]);
     // initial tiles
@@ -24,7 +23,7 @@ export const useRoad = (player, blockers, count, move, withSkipping, withNeighbo
         topRightTile,
         bottomLeftTile,
         bottomRightTile,
-    } = doCalculations(player, [])
+    } = doCalculations(player, [], goal)
     const uniques = removeUndefined([
         leftTile,
         rightTile,
@@ -38,7 +37,7 @@ export const useRoad = (player, blockers, count, move, withSkipping, withNeighbo
 
     const [neighbours, setCurrentNeighbours] = useState(evaluateTilesFromOpen(uniques, road));
     const [open, setOpen] = useState(evaluateTilesFromOpen(uniques, road));
-    const isGoalReached = (position) => position && position.x === GOAL.x && position.y === GOAL.y
+    const isGoalReached = (position) => position && position.x === goal.x && position.y === goal.y
 
     // update area based on new position
     /* eslint-disable */
@@ -53,7 +52,7 @@ export const useRoad = (player, blockers, count, move, withSkipping, withNeighbo
             bottomLeftTile,
             bottomRightTile,
             neighbours,
-        } = doCalculations(player, open)
+        } = doCalculations(player, open, goal)
         const newUniques = removeUndefined([
             leftTile,
             rightTile,
@@ -140,11 +139,65 @@ export const useRoad = (player, blockers, count, move, withSkipping, withNeighbo
         resolvePath(road[road.length - 1]);
     }
 
+    const clearRoad = (newPlayerPostition) => setRoad([newPlayerPostition])
+    const clearOpen = (newPlayerPostition) => {
+        const {
+            leftTile,
+            rightTile,
+            topTile,
+            bottomTile,
+            topLeftTile,
+            topRightTile,
+            bottomLeftTile,
+            bottomRightTile,
+        } = doCalculations(newPlayerPostition, [], goal)
+        const uniques = removeUndefined([
+            leftTile,
+            rightTile,
+            topTile,
+            bottomTile,
+            topLeftTile,
+            topRightTile,
+            bottomLeftTile,
+            bottomRightTile,
+        ]);
+        setOpen(evaluateTilesFromOpen(uniques, [newPlayerPostition]))
+    }
+    const clearNeighbours = (newPlayerPostition) => {
+        const {
+            leftTile,
+            rightTile,
+            topTile,
+            bottomTile,
+            topLeftTile,
+            topRightTile,
+            bottomLeftTile,
+            bottomRightTile,
+        } = doCalculations(newPlayerPostition, [], goal)
+        const uniques = removeUndefined([
+            leftTile,
+            rightTile,
+            topTile,
+            bottomTile,
+            topLeftTile,
+            topRightTile,
+            bottomLeftTile,
+            bottomRightTile,
+        ]);
+        setCurrentNeighbours(evaluateTilesFromOpen(uniques, [newPlayerPostition]))
+    }
+    const clearAll = (newPlayerPostition) => {
+        clearRoad(newPlayerPostition);
+        clearOpen(newPlayerPostition);
+        clearNeighbours(newPlayerPostition);
+    }
+
     return {
         open,
         road,
         path,
         setFinalPath,
         isGoalReached,
+        clearAll,
     }
 }

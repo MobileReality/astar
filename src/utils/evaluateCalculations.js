@@ -73,38 +73,46 @@ export const removeUndefined = (array) => {
 
 
 
-export const doCalculations = (player, open) => {
+export const doCalculations = (player, open, goal) => {
     const check = (tile) => checkIfAlreadyAddedToOpen(tile, open)
     const leftTile = addCosts(
         checkIfCanReturn({ x: letCalculateLowerPosition(player.x), y: player.y }),
+        goal,
         player
     )
     const rightTile = addCosts(
         checkIfCanReturn({ x: letCalculateHigherPosition(player.x), y: player.y }),
+        goal,
         player
     );
     const topTile = addCosts(
         checkIfCanReturn({ x: player.x, y: letCalculateHigherPosition(player.y) }),
+        goal,
         player
     );
     const bottomTile = addCosts(
         checkIfCanReturn({ x: player.x, y: letCalculateLowerPosition(player.y) }),
+        goal,
         player
     );
     const topLeftTile = addCosts(
         checkIfCanReturn({ x: letCalculateLowerPosition(player.x), y: letCalculateHigherPosition(player.y) }),
+        goal,
         player
     );
     const topRightTile = addCosts(
         checkIfCanReturn({ x: letCalculateHigherPosition(player.x), y: letCalculateHigherPosition(player.y) }),
+        goal,
         player
     );
     const bottomLeftTile = addCosts(
         checkIfCanReturn({ x: letCalculateLowerPosition(player.x), y: letCalculateLowerPosition(player.y) }),
+        goal,
         player
     );
     const bottomRightTile = addCosts(
         checkIfCanReturn({ x: letCalculateHigherPosition(player.x), y: letCalculateLowerPosition(player.y) }),
+        goal,
         player
     );
     return {

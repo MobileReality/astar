@@ -1,4 +1,3 @@
-import { GOAL } from '../constants';
 
 const gCost = (tilePosition, playerPosition) => { // gCost from start
     const width = tilePosition.x - playerPosition.x;
@@ -6,16 +5,16 @@ const gCost = (tilePosition, playerPosition) => { // gCost from start
     return Math.sqrt(width*width + height*height);
 }
 
-const hCost = (tilePosition) => { // hCost from end
-    const width = GOAL.x - tilePosition.x;
-    const height = GOAL.y - tilePosition.y;
+const hCost = (tilePosition, goal) => { // hCost from end
+    const width = goal.x - tilePosition.x;
+    const height = goal.y - tilePosition.y;
     return Math.sqrt(width*width + height*height);
 }
 
-export const addCosts = (item, player = undefined) => {
+export const addCosts = (item, goal, player = undefined) => {
     if(!item) return undefined;
     const g_cost = gCost(item, player) + player.gCost;
-    const h_cost = hCost(item);
+    const h_cost = hCost(item, goal);
     const cost = g_cost + h_cost;
     const itemToReturn = {
         x: item.x,

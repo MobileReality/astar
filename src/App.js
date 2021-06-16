@@ -4,7 +4,8 @@ import { Map } from './components/Map';
 import { useBlockers } from './hooks/useBlockers';
 import { usePlayer } from './hooks/useUser';
 import { useRoad } from './hooks/useRoad';
-import { START, GOAL, DIMENSION } from './constants';
+import { useGoalAndStart } from './hooks/useGoalAndStart';
+import { DIMENSION } from './constants';
 
 function App() {
     const [count, setCount] = useState(0); // frames
@@ -12,7 +13,8 @@ function App() {
     const [ withSkipping, setWithSkipping ] = useState(true);
     const [ withNeighbourEvaluation, setWithNeighbourEvaluation ] = useState(true);
 
-    const { player, move } = usePlayer(START);
+    const { start, goal, setStart, setGoal, isStartSetting, isGoalSetting, setIsGoalSetting, setIsStartSetting } = useGoalAndStart();
+    const { player, move, extendUserData } = usePlayer(start);
     const {
         blockers,
         setBlockersOnMap,
@@ -24,8 +26,10 @@ function App() {
         road,
         path,
         setFinalPath,
-        isGoalReached
+        isGoalReached,
+        clearAll
     } = useRoad(
+        goal,
         player,
         blockers,
         count,
@@ -56,42 +60,82 @@ function App() {
         }, 5);
     }
 
+    const onSetStart = (position) => {
+        clearAll({...position, ...extendUserData});
+        setStart(position)
+        setIsStartSetting(false)
+    }
+    const onSetGoal = (position) => {
+        setGoal(position)
+        setIsGoalSetting(false);
+    }
+
+    const editStartPosition = () => {
+        setIsStartSetting(true);
+        setIsSetting(false);
+        setIsGoalSetting(false);
+    }
+
+    const editGoalPosition = () => {
+        setIsStartSetting(false);
+        setIsSetting(false);
+        setIsGoalSetting(true);
+    }
 
 
     return (
-    <div className="App"
-         onMouseDown={() => setIsSetting(true)} onMouseUp={() => setIsSetting(false)}
-    >
-      <header className="App-header">
-          <div className="buttons">
-              <button onClick={moveToLowestCost}>move</button>
-              <button onClick={setBlockersOnMap}>set blockers</button>
-              <button onClick={setBlockersBasedOnGeneratedMap}>set blockers based on map</button>
-              <button
-                  className={withSkipping ? 'with-condition' : ''}
-                  onClick={() => setWithSkipping((prevState) => !prevState)}
-              >
-                  with skipping
-              </button>
-              <button
-                  className={withNeighbourEvaluation ? 'with-condition' : ''}
-                  onClick={() => setWithNeighbourEvaluation((prevState) => !prevState)}
-              >
-                  with neighbours evaluation
-              </button>
-          </div>
-          <Map
-              columns={DIMENSION}
-              rows={DIMENSION}
-              blockers={blockers}
-              open={open}
-              road={road}
-              path={path}
-              goal={GOAL}
-              userPosition={player}
-              setTileAsBlocker={setTileAsBlocker}
-              isSetting={isSetting}
-          />
+    <div className="App">
+        <header className="App-header">
+            <div className="move-button">
+                <button onClick={moveToLowestCost}>move</button>
+            </div>
+            <div className="App-content">
+                <div className="buttons">
+                    <div className="setting_buttons">
+                        <button onClick={() => window.location.reload()}>reload</button>
+                    </div>
+                    <div className="setting_buttons">
+                        <button disabled={isStartSetting} onClick={editStartPosition}>set start</button>
+                        <button disabled={isGoalSetting} onClick={editGoalPosition}>set goal</button>
+                    </div>
+                    <button onClick={setBlockersOnMap}>set blockers</button>
+                    <button onClick={() => setIsSetting(true)}>set blockers individually</button>
+                    <button
+                        className={withSkipping ? 'with-condition' : ''}
+                        onClick={() => setWithSkipping((prevState) => !prevState)}
+                    >
+                        with skipping
+                    </button>
+                    <button
+                        className={withNeighbourEvaluation ? 'with-condition' : ''}
+                        onClick={() => setWithNeighbourEvaluation((prevState) => !prevState)}
+                    >
+                        with neighbours evaluation
+                    </button>
+                </div>
+                <Map
+                    columns={DIMENSION}
+                    rows={DIMENSION}
+                    blockers={blockers}
+                    open={open}
+                    road={road}
+                    path={path}
+                    goal={goal}
+                    userPosition={player}
+                    setTileAsBlocker={setTileAsBlocker}
+                    isSetting={isSetting}
+                    isStartSetting={isStartSetting}
+                    isGoalSetting={isGoalSetting}
+                    onSetStart={onSetStart}
+                    onSetGoal={onSetGoal}
+                />
+                <div className="buttons">
+                    maps
+                    <button onClick={() => setBlockersBasedOnGeneratedMap('wall')}>wall</button>
+                    <button onClick={() => setBlockersBasedOnGeneratedMap('mrmap')}>MR map</button>
+                    <button onClick={() => setBlockersBasedOnGeneratedMap('something')}>labyrinth</button>
+                </div>
+            </div>
       </header>
     </div>
   );

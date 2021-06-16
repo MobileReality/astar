@@ -2,7 +2,7 @@ import React from 'react';
 import { Tile } from './Tile';
 import './Row.css'
 
-const MemoRow = ({ x, columns, blockers, open, road, goal, path, userPosition, setTileAsBlocker, isSetting }) => {
+const MemoRow = ({ x, columns, blockers, open, road, goal, path, userPosition, setTileAsBlocker, isSetting, isGoalSetting, isStartSetting, onSetGoal, onSetStart }) => {
     const columnsToRender = new Array(columns).fill(x);
 
     const isOpen = (y) => {
@@ -42,6 +42,10 @@ const MemoRow = ({ x, columns, blockers, open, road, goal, path, userPosition, s
                     isUserPosition={isUserPosition(item.x, item.y)}
                     setTileAsBlocker={setTileAsBlocker}
                     isSetting={isSetting}
+                    isStartSetting={isStartSetting}
+                    isGoalSetting={isGoalSetting}
+                    onSetStart={onSetStart}
+                    onSetGoal={onSetGoal}
                 />
             })}
         </div>
