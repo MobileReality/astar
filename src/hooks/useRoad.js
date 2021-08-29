@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
     doCalculations,
-    evaluateRestTiles,
     removeUndefined,
     evaluateTilesFromOpen,
     removeCurrentPositionFromOpen,
@@ -10,7 +9,7 @@ import {
 import { getMinCostTiles, getMinHCostTile, getMinCostTile } from '../utils/calculateDistance';
 
 
-export const useRoad = (goal, player, blockers, count, move, withSkipping, withNeighbourEvaluation) => {
+export const useRoad = (goal, player, blockers, count, move, withNeighbourEvaluation) => {
     const [road, setRoad] = useState([player]);
     const [path, setPath] = useState([]);
     // initial tiles
@@ -86,12 +85,7 @@ export const useRoad = (goal, player, blockers, count, move, withSkipping, withN
 
 
     const findLowestCostTile = () => {
-        // evaluating all open tiles
-        let openWithoutEvaluation = open.filter((item) => item.status === 'waiting');
-        if(openWithoutEvaluation.length === 0) {
-            openWithoutEvaluation = open.filter((item) => item.status === 'skipped');
-        }
-        const { minArray, min } = getMinCostTiles(openWithoutEvaluation);
+        const { minArray, min } = getMinCostTiles(open);
 
         if(withNeighbourEvaluation) { // evaluating only neighbour tiles
             const neighboursCosts = getMinCostTiles(neighbours);
@@ -107,7 +101,7 @@ export const useRoad = (goal, player, blockers, count, move, withSkipping, withN
         if(minArray.length > 1) {
             return getMinHCostTile(minArray);
         }
-        return getMinCostTile(openWithoutEvaluation, min);
+        return getMinCostTile(open, min);
     }
 
     /* eslint-disable */
@@ -115,9 +109,6 @@ export const useRoad = (goal, player, blockers, count, move, withSkipping, withN
         if(count > 0 && !isGoalReached(road[road.length - 1])) {
             const nextTile = findLowestCostTile();
             move(nextTile)
-            if(withSkipping) {
-                setOpen((prevState) => evaluateRestTiles(prevState))
-            }
             setRoad((prevState) => prevState.concat(nextTile))
         }
     }, [count])

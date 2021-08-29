@@ -10,7 +10,6 @@ import { DIMENSION } from './constants';
 function App() {
     const [count, setCount] = useState(0); // frames
 
-    const [ withSkipping, setWithSkipping ] = useState(true);
     const [ withNeighbourEvaluation, setWithNeighbourEvaluation ] = useState(true);
 
     const { start, goal, setStart, setGoal, isStartSetting, isGoalSetting, setIsGoalSetting, setIsStartSetting } = useGoalAndStart();
@@ -34,7 +33,6 @@ function App() {
         blockers,
         count,
         move,
-        withSkipping,
         withNeighbourEvaluation
     );
     const [isSetting, setIsSetting] = useState(false);
@@ -100,12 +98,6 @@ function App() {
                     </div>
                     <button onClick={setBlockersOnMap}>set blockers</button>
                     <button onClick={() => setIsSetting(true)}>set blockers individually</button>
-                    <button
-                        className={withSkipping ? 'with-condition' : ''}
-                        onClick={() => setWithSkipping((prevState) => !prevState)}
-                    >
-                        with skipping
-                    </button>
                     <button
                         className={withNeighbourEvaluation ? 'with-condition' : ''}
                         onClick={() => setWithNeighbourEvaluation((prevState) => !prevState)}
